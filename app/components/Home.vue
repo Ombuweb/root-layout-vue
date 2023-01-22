@@ -24,6 +24,7 @@ import AboutView from "./About.vue"
 import GreetingView from "./Greetings.vue"
 
 import { } from "vue"
+import { VueConstructor } from 'vue/types/umd';
 interface IData {
   popupViews: { view: View; options: RootLayoutOptions; extra?: any }[];
   currentView: View;
@@ -32,7 +33,7 @@ interface IMethods {
   open: (args: EventData) => void;
   bringToFront: (args: EventData) => void;
   close: (args: EventData) => void;
-  extractViewFromVue: () => { view: View, id: number };
+  extractViewFromVue: (vueComponent: VueConstructor) => void;
   openModal: () => void;
   getPopup: (color: string, size: number, offset: number) => View;
   onGridLoaded: (args: EventData) => void;
@@ -122,7 +123,7 @@ export default Vue.extend<IData, IMethods, {}, {}>({
       },
     },
     ]
-    this.extractViewFromVue()
+    this.extractViewFromVue(AboutView)
   },
   // components: {
   //   AboutView,
@@ -184,23 +185,19 @@ export default Vue.extend<IData, IMethods, {}, {}>({
 
       return layout;
     },
-    extractViewFromVue() {
-      // const frame = new CGRect()
-      // const dPicker = UIDatePicker.alloc().initWithFrame(frame)
-      // dPicker.frame.size
-
+    extractViewFromVue(vueComponent: VueConstructor) {
+      
       var navEntryInstance = new Vue({
         name: 'ModalEntry',
         render: function (h) {
-          return h(AboutView)
+          return h(vueComponent)
         }
       });
 
       var modalPage = (navEntryInstance.$mount().$el as any).nativeView as View;
       this.currentView = modalPage
-      // const test =  navEntryInstance.$children[0].$mount().$el;
-      //console.log(Utils.getClass(test),test)
-      return { view: modalPage, id: modalPage._domId }
+      
+      
     },
     openModal() {
       this.$showModal(GreetingView).then((value: string) => {
